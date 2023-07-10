@@ -2,12 +2,14 @@ const { Book, User } = require('../models')
 
 const resolvers = {
     Query: {
-        book: async () => {
-            return Book.find({})
-        },
-        user: async (parent, {_id}) => {
-            const params = _id? {_id}: {}
-            return User.find(params)
+        me: async (parent, args, context) => {
+            if (context.user) {
+                const userData = await User.findOne({ _id: context.user._id })
+                    .select('-__v -password')
+            return userData;
+            }
+
+            throw new AuthenticationError('Not logged in');
         }
     },
 
